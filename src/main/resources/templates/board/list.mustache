@@ -1,5 +1,28 @@
 {{> layout/header}}
 <div class="container p-5 flex-grow-1">
+    <!-- 검색 폼 START (GET )  -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="/board/list" method="get" class="row g-3">
+                <!--  부트스트랩5 12 등분으로 화면을 분배할 수 있음 -->
+                <div class="col-md-8">
+                    <input type="text" class="form-control"
+                           name="keyword" placeholder="제목 또는 내용으로 검색..." value="{{keyword}}">
+                </div>
+                <div class="col-md-2">
+                    <input type="hidden" name="page" value="1">
+                    <input type="hidden" name="size" value="{{boardPage.size}}">
+                    <button type="submit" class="btn btn-primary w-100">검색</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="/board/list" class="btn btn-secondary w-100">초기화</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!--  검색 폼 END   -->
+
+    <!-- 게시글 리스트     -->
     {{#boardPage.list}}
         <div class="card mb-3">
             <div class="card-body">

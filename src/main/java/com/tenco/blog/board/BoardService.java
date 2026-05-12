@@ -61,31 +61,20 @@ public class BoardService {
      * 게시글 목록 조회 페이징 처리
      * OSIV false 환경 대응 - 응답 DTO 설계
      */
-    public BoardResponse.PageDTO 게시글목록(int page, int size) {
-
-        // 화면 기준에서 넘어 오는 값 (사용자에게 보여지는 기준) 0이 아니라 1부터 시작
-        // 반면 Spring Data JPA 기분으로 offset 0번 부터 시작이다.
-        // 사용자가 일부 음수값을 넣어라도 기본 값 0으로 셋팅될 수 있도록 방어적 코드 작성 필수!
+    public BoardResponse.PageDTO 게시글목록(int page, int size, String keyword) {
         int pageIndex = Math.max(0, page - 1);
-        //  사용자가 임의로 많은 값을 던지는 것 방지
         int validSize = Math.max(1, Math.min(50, size));
 
-        // Pageable 이란?
-        // 어떤 페이지를(pageIndex), 몇 개씩(validSize), 어떤 정렬(sort) 가져올지를
-        // 한 묶으로 표현하는 Spring Data 표준 페이징 인터페이스 이다.
-        // 즉 Repository 에 Pageable 객체를 넘기면 자동으로 Limit, Offset 만들어 준다.
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
         Pageable pageable = PageRequest.of(pageIndex, validSize, sort);
 
-        // Page<T> 이란?
-        // 조회된 데이터 한 페이지와 페이징 관련되 메타 데이를 한꺼번에 담아 주는 객체 이다.
-        // - getContent() : 현재 페이지의 데이터 목록
-        // - getNumbers() : 현재 페이지 번호 (0번부터 시작 함)
-        // - getTotalElements() : 전체 항목 수
-        // - getTotalPage() : 전체 페이지 수
-        // - isFrist() / isLast() : 첫 페이지/마지막 페이지 여부 boolean()
-        Page<Board> boardPage = boardRepository.findAllWithUserOrderByCreatedAtDesc(pageable);
-        // DTO 변환해서 컨트롤러로 내려 줌 (OSIV 대응)
+        Page<Board> boardPage;
+        if(keyword == null || keyword.isBlank()) {
+            boardPage = boardRepository.findAllWithUserOrderByCreatedAtDesc(pageable);
+        } else {
+            boardPage = boardRepository.findByTitleContainingOrContentContaining(keyword.trim(),
+                    pageable);
+        }
         return new BoardResponse.PageDTO(boardPage);
     }
 

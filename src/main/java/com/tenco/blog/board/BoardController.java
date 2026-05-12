@@ -56,10 +56,12 @@ public class BoardController {
     @GetMapping({"/board/list", "/"})
     public String list(Model model,
                        @RequestParam(name = "page", defaultValue = "1") Integer page,
-                       @RequestParam(name = "size", defaultValue = "5") Integer size) {
+                       @RequestParam(name = "size", defaultValue = "5") Integer size,
+                       @RequestParam(name = "keyword", required = false) String keyword) {
 
-        BoardResponse.PageDTO boardPage = boardService.게시글목록(page, size);
+        BoardResponse.PageDTO boardPage = boardService.게시글목록(page, size, keyword);
         model.addAttribute("boardPage", boardPage);
+        model.addAttribute("keyword", keyword != null ? keyword : "");
         return "board/list";
     }
 
