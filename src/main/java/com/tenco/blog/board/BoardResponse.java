@@ -3,6 +3,10 @@ package com.tenco.blog.board;
 import com.tenco.blog.user.User;
 import com.tenco.blog.util.MyDateUtil;
 import lombok.Data;
+import org.springframework.data.domain.Page;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 게시글 응답 DTO
@@ -69,5 +73,68 @@ public class BoardResponse {
         }
 
     } // end of DetailDTO inner class
+
+
+    // 페이징 DTO 설계
+    // Page<Board> page --> 우리 사용할 DTO 클래스 단순히 변환 하는 작업 및 편의 기능 추가
+    @Data
+    public static class PageDTO {
+        private List<ListDTO> list;
+        private int currentPage;
+        private int size;
+        private int totalPages;
+        private long totalElements;
+        private boolean first;
+        private boolean last;
+        private int prevPage;
+        private int nextPage;
+        private List<PageItem> pageItemNumbers;
+
+        public PageDTO(Page<Board> page) {
+            // List<Board> --> List<ListDTO> 형태로 변환 작업
+            this.list = page.getContent().stream()
+                    .map(board -> new ListDTO(board))
+                    .toList();
+            // 사전 지식 :  page.getNumber() <-- 0 번 부터 시작 함.
+            // 화면에서는 변수 this.currentPage <-- 1번 부터 보여 줘야 함.
+            this.currentPage = page.getNumber()  + 1;
+            this.size = page.getSize(); // 현재 default 값은 2 임 (수정 가능)
+            this.totalPages = page.getTotalPages();
+            this.totalElements = page.getTotalElements(); // long로 설계 되어 있음
+            this.first = page.isFirst();
+            this.last = page.isLast();
+
+            // 이전/다음 페이지 번호 ( 템플릿이 산술 계산을 못하기 때문에 여기서 계산해서 내려 줌)
+            this.prevPage = this.first ? this.currentPage : this.currentPage - 1;
+            this.nextPage = this.last ? this.currentPage : this.currentPage + 1;
+
+            // 페이지 번호 윈도우 : 현재 페이지 기준 앞뒤 2페이지 (최대 5개)
+            // 예1 : 현재 페이지 5 ---> [ 3, 4, 5, 6, 7 ]
+            // 예2 : 현재 페이지 1 ---> [1, 2, 3]
+            int start = Math.max(1, this.currentPage - 2);
+            // 예3 : 현재 페이지 5, 총 페이지 5 일 경우 [3, 4, 5]
+            int end = Math.min(this.totalPages, this.currentPage + 2);
+
+            // 빈 List 먼저 생성 후 값 할당
+            this.pageItemNumbers = new ArrayList<>();
+            for(int i = start; i <= end; i++) {
+                boolean isActive = (i == this.currentPage);
+                this.pageItemNumbers.add(new PageItem(i, isActive));
+            }
+        }
+
+    } // end of PageDTO
+
+    @Data
+    public static class PageItem {
+        private int number;
+        private boolean active;
+
+        public PageItem(int number, boolean active) {
+            this.number = number;
+            this.active = active;
+        }
+    }
+
 
 } // end of outer class
