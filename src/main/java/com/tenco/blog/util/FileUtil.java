@@ -14,7 +14,7 @@ import java.util.UUID;
 public class FileUtil {
 
     // 업로드될 파일 경로를 미지 상수로 지정
-    public static final String IMAGES_DIR = "images/";
+    public static final String IMAGES_DIR = "C:\\upload";
 
     // 1. 파일 저장 하는 기능
     public static String saveFile(MultipartFile file, String uploadDir) throws IOException {
