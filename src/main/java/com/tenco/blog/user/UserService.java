@@ -103,8 +103,32 @@ public class UserService {
         log.info("회원정보 서비스 시작");
         User userEntity = userRepository.findById(id).orElseThrow(
                 () -> new Exception404("사용자 정보를 찾을 수 없습니다"));
+
+        // 프로필 이미지 처리 (사용자가 이미지를 보냈다면)
+        String uuidImageFileName = null;
+        if (updateDTO.getProfileImage() != null && !updateDTO.getProfileImage().isEmpty()) {
+            // 새 프로필 정보 수정 요청
+            // 1. 기존에 프로필 사진이 있다면 삭제하고 새로 저장 (디스트), (DB 수정)
+            // 2. 기존에는 프로필 이미지가 null 인 경우
+            String oldProfileImage = userEntity.getProfileImage(); // null , 기존 이미지 명
+            //String newProfileImage = updateDTO.getProfileImage().getOriginalFilename();
+            if(!FileUtil.isImageFile(updateDTO.getProfileImage())) {
+                throw new Exception400("이미지 파일만 업로드 가능합니다");
+            }
+            // 신규 이미지 저장
+            try {
+                uuidImageFileName = FileUtil.saveFile(updateDTO.getProfileImage(), FileUtil.IMAGES_DIR);
+                // 기존 이미 삭제 처리 (있다면)
+                if(oldProfileImage != null) {
+                    FileUtil.deleteFile(oldProfileImage, FileUtil.IMAGES_DIR);
+                }
+
+            } catch (IOException e) {
+                throw new Exception500("프로필 이미지 파일 저장 실패");
+            }
+        }
         // 더티 체킹 활용
-        userEntity.update(updateDTO);
+        userEntity.update(updateDTO, uuidImageFileName); // null, 새로운 이미지 명
         return userEntity;
     }
 
