@@ -18,7 +18,7 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <div class="collapse navbar-collapse d-flex justify-content-between" id="collapsibleNavbar">
             <ul class="navbar-nav">
                 {{#sessionUser}}
                     <li class="nav-item">
@@ -26,8 +26,13 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/user/detail">마이페이지</a>
-<!--                        <a class="nav-link" href="/user/update-form">회원정보보기</a>-->
                     </li>
+                    {{#admin}}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">관리자</a>
+                    </li>
+                    {{/admin}}
+
                     <li class="nav-item">
                         <a class="nav-link" href="/logout">로그아웃</a>
                     </li>
@@ -41,6 +46,16 @@
                     </li>
                 {{/sessionUser}}
             </ul>
+
+            <ul class="navbar-nav ml-auto">
+                {{#sessionUser}}
+                <li class="nav-item d-flex">
+                    <span class="badge bg-info">{{roleDisplay}}</span>
+                    <span class="badge bg-info">{{username}} 님</span>
+                </li>
+                {{/sessionUser}}
+            </ul>
+
         </div>
     </div>
 </nav>
