@@ -161,6 +161,10 @@ public class UserService {
         userEntity.setProfileImage(null);
         return userEntity;
     }
+
+    public User 사용자이름조회(String username) {
+        return userRepository.findByUsername(username).orElse(null);
+    }
 }
 
 
